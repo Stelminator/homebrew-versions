@@ -10,7 +10,7 @@ class Cloog018 < Formula
   keg_only 'Conflicts with cloog in main repository.'
 
   depends_on 'pkg-config' => :build
-  depends_on 'gmp4'
+  depends_on 'gmp'
   depends_on 'isl011'
 
   def install
@@ -18,7 +18,7 @@ class Cloog018 < Formula
       "--prefix=#{prefix}",
       "--disable-dependency-tracking",
       "--disable-silent-rules",
-      "--with-gmp-prefix=#{Formula.factory("gmp4").opt_prefix}",
+      "--with-gmp-prefix=#{Formula.factory("gmp").opt_prefix}",
       "--with-isl-prefix=#{Formula.factory("isl011").opt_prefix}"
     ]
 

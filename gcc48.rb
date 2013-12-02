@@ -2,19 +2,7 @@ require 'formula'
 
 class Gcc48 < Formula
   def arch
-    if Hardware::CPU.type == :intel
-      if MacOS.prefer_64_bit?
-        'x86_64'
-      else
-        'i686'
-      end
-    elsif Hardware::CPU.type == :ppc
-      if MacOS.prefer_64_bit?
-        'powerpc64'
-      else
-        'powerpc'
-      end
-    end
+    'i686'
   end
 
   def osmajor
@@ -35,23 +23,23 @@ class Gcc48 < Formula
   option 'enable-profiled-build', 'Make use of profile guided optimization when bootstrapping GCC'
   option 'enable-multilib', 'Build with multilib support'
 
-  depends_on 'gmp4'
-  depends_on 'libmpc08'
-  depends_on 'mpfr2'
+  depends_on 'gmp'
+  depends_on 'libmpc'
+  depends_on 'mpfr'
   depends_on 'cloog018'
   depends_on 'isl011'
   depends_on 'ecj' if build.include? 'enable-java' or build.include? 'enable-all-languages'
 
   # The as that comes with Tiger isn't capable of dealing with the
   # PPC asm that comes in libitm
-  depends_on 'cctools' => :build if MacOS.version < :leopard
+  #depends_on 'cctools' => :build if MacOS.version < :leopard
 
   fails_with :gcc_4_0
 
   # GCC 4.8.1 incorrectly determines that _Unwind_GetIPInfo is available on
   # Tiger, resulting in a failed build
   # Reported upstream: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=58710
-  def patches; DATA; end if MacOS.version < :leopard
+  #def patches; DATA; end if MacOS.version < :leopard
 
   def install
     # GCC bootstraps itself, so it is OK to have an incompatible C++ stdlib
@@ -60,11 +48,11 @@ class Gcc48 < Formula
     # GCC will suffer build errors if forced to use a particular linker.
     ENV.delete 'LD'
 
-    if MacOS.version < :leopard
-      as = Formula.factory('cctools').bin/'as'
-      ENV['AS'] = as
-      ENV['AS_FOR_TARGET'] = as
-    end
+    #if MacOS.version < :leopard
+    #  as = Formula.factory('cctools').bin/'as'
+    #  ENV['AS'] = as
+    #  ENV['AS_FOR_TARGET'] = as
+    #end
 
     if build.include? 'enable-all-languages'
       # Everything but Ada, which requires a pre-existing GCC Ada compiler
@@ -82,14 +70,14 @@ class Gcc48 < Formula
     version_suffix = version.to_s.slice(/\d\.\d/)
 
     args = [
-      "--build=#{arch}-apple-darwin#{osmajor}",
+#      "--build=#{arch}-ubuntu#{osmajor}",
       "--prefix=#{prefix}",
       "--enable-languages=#{languages.join(',')}",
       # Make most executables versioned to avoid conflicts.
       "--program-suffix=-#{version_suffix}",
-      "--with-gmp=#{Formula.factory('gmp4').opt_prefix}",
-      "--with-mpfr=#{Formula.factory('mpfr2').opt_prefix}",
-      "--with-mpc=#{Formula.factory('libmpc08').opt_prefix}",
+      "--with-gmp=#{Formula.factory('gmp').opt_prefix}",
+      "--with-mpfr=#{Formula.factory('mpfr').opt_prefix}",
+      "--with-mpc=#{Formula.factory('libmpc').opt_prefix}",
       "--with-cloog=#{Formula.factory('cloog018').opt_prefix}",
       "--with-isl=#{Formula.factory('isl011').opt_prefix}",
       "--with-system-zlib",
@@ -108,11 +96,11 @@ class Gcc48 < Formula
 
     # "Building GCC with plugin support requires a host that supports
     # -fPIC, -shared, -ldl and -rdynamic."
-    args << "--enable-plugin" if MacOS.version > :tiger
+    #args << "--enable-plugin" if MacOS.version > :tiger
 
     # Otherwise make fails during comparison at stage 3
     # See: http://gcc.gnu.org/bugzilla/show_bug.cgi?id=45248
-    args << '--with-dwarf2' if MacOS.version < :leopard
+    #args << '--with-dwarf2' if MacOS.version < :leopard
 
     args << '--disable-nls' unless build.include? 'enable-nls'
 
@@ -127,12 +115,12 @@ class Gcc48 < Formula
     end
 
     mkdir 'build' do
-      unless MacOS::CLT.installed?
-        # For Xcode-only systems, we need to tell the sysroot path.
-        # 'native-system-header's will be appended
-        args << "--with-native-system-header-dir=/usr/include"
-        args << "--with-sysroot=#{MacOS.sdk_path}"
-      end
+      #unless MacOS::CLT.installed?
+      #  # For Xcode-only systems, we need to tell the sysroot path.
+      #  # 'native-system-header's will be appended
+      #  args << "--with-native-system-header-dir=/usr/include"
+      #  args << "--with-sysroot=#{MacOS.sdk_path}"
+      #end
 
       system '../configure', *args
 

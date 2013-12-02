@@ -9,14 +9,14 @@ class Isl011 < Formula
 
   keg_only 'Conflicts with isl in main repository.'
 
-  depends_on 'gmp4'
+  depends_on 'gmp'
 
   def install
     system "./configure", "--disable-dependency-tracking",
                           "--disable-silent-rules",
                           "--prefix=#{prefix}",
                           "--with-gmp=system",
-                          "--with-gmp-prefix=#{Formula.factory('gmp4').opt_prefix}"
+                          "--with-gmp-prefix=#{Formula.factory('gmp').opt_prefix}"
     system "make install"
     (share/"gdb/auto-load").install Dir["#{lib}/*-gdb.py"]
   end
